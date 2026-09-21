@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BookOpen,
   Sparkles,
@@ -24,8 +24,11 @@ import {
 import { Kid, AttentionItem } from '../types';
 
 interface MotherDesktopDashboardProps {
+  initialRole?: 'mother' | 'father';
   onBackToRoleSelect?: () => void;
 }
+
+export type ParentRole = 'mother' | 'father';
 
 const initialKids: Kid[] = [
   {
@@ -96,36 +99,108 @@ const initialKids: Kid[] = [
   },
 ];
 
-const initialAttentions: AttentionItem[] = [
-  {
-    id: 'att-1',
-    title: 'اشتراك سارة ينتهي بعد 4 أيام',
-    actionLabel: 'تجديد',
-    actionType: 'renew',
-    kidId: '1',
-    isUrgent: true,
+const roleThemes = {
+  mother: {
+    roleTitle: 'الأُمّ',
+    avatarText: 'أم',
+    avatarBg: 'bg-[#f7edf3]',
+    avatarTextCol: 'text-[#B04A7C]',
+    avatarBorder: 'border-pink-200/60',
+    welcomeName: 'أهلًا بأمّ عمر',
+    welcomeDesc: 'أبناؤكِ بخير في الغالب، وهناك 3 أمور صغيرة تحتاج لمستكِ.',
+    heroGradient: 'from-pink-50/60 via-pink-50/15 to-transparent',
+    selectionClass: 'selection:bg-rose-100 selection:text-rose-900',
+    pillBadge: 'bg-[#fdf2f8] text-[#B04A7C] border-pink-200/60',
+    primaryBtn: 'bg-[#26374a] hover:bg-[#1d2b3a]',
+    partnerRole: 'الأب',
+    partnerRoleInverted: 'الأُمّ',
+    inviteBtnLabel: 'دعوة الأب لمشاركة المتابعة',
+    inviteCardDesc: 'يمكنكِ دعوة الأب بضغطة زر لمتابعة الواجبات، ومواعيد الحصص، والمشاركة في القرارات.',
+    inviteModalDesc: 'شاركي رابط الدعوة مع الأب ليتمكن من تسجيل الدخول والمشاركة في متابعة إنجاز الأبناء والمهام اليومية:',
+    inviteCode: 'MOM-9821',
+    tipGradient: 'from-rose-50/70 via-white to-amber-50/30 border-rose-200/80',
+    tipBadgeBg: 'bg-rose-100/90 text-rose-800',
+    tipText: 'عمر أنهى مهامه بإتقان. كلمة تشجيع منكِ الليلة تصنع فرقًا.',
+    tipBtn: 'bg-[#B04A7C] hover:bg-[#9a3e6c]',
+    attentionsTitle: 'أمور تحتاج لمستكِ',
+    partnerCardBg: 'bg-[#fcf8fa] border-pink-100',
+    partnerIconColor: 'text-[#B04A7C]',
+    addKidModalTitle: 'إضافة ابن جديد إلى حسابكِ',
+    accentColor: '#B04A7C',
+    noteForSarah: 'سارة تتقدّم بثبات، لكنها تحتاج دعمًا لطيفًا في الكسور هذا الأسبوع.',
+    attentionSarahNote: 'أداء نورة يستحق نظرة منكِ',
   },
-  {
-    id: 'att-2',
-    title: 'أداء نورة يستحق نظرة منكِ',
-    actionLabel: 'عرض',
-    actionType: 'openperf',
-    kidId: '3',
-    isUrgent: true,
+  father: {
+    roleTitle: 'الأَبْ',
+    avatarText: 'أب',
+    avatarBg: 'bg-[#eaf3f9]',
+    avatarTextCol: 'text-[#1D638D]',
+    avatarBorder: 'border-sky-200/70',
+    welcomeName: 'أهلًا بأبي عمر',
+    welcomeDesc: 'أبناؤك بخير في الغالب، وهناك 3 أمور صغيرة تحتاج لمستك.',
+    heroGradient: 'from-sky-50/70 via-sky-50/20 to-transparent',
+    selectionClass: 'selection:bg-sky-100 selection:text-sky-900',
+    pillBadge: 'bg-[#eff6fb] text-[#1D638D] border-sky-200/70',
+    primaryBtn: 'bg-[#1a384f] hover:bg-[#132d40]',
+    partnerRole: 'الأم',
+    partnerRoleInverted: 'الأَبْ',
+    inviteBtnLabel: 'دعوة الأم لمشاركة المتابعة',
+    inviteCardDesc: 'يمكنك دعوة الأم بضغطة زر لمتابعة الواجبات، ومواعيد الحصص، والمشاركة في القرارات.',
+    inviteModalDesc: 'شارك رابط الدعوة مع الأم لتتمكن من تسجيل الدخول والمشاركة في متابعة إنجاز الأبناء والمهام اليومية:',
+    inviteCode: 'DAD-5420',
+    tipGradient: 'from-sky-50/70 via-white to-amber-50/30 border-sky-200/80',
+    tipBadgeBg: 'bg-sky-100/90 text-sky-800',
+    tipText: 'عمر أنهى مهامه بإتقان. كلمة تشجيع منك الليلة تصنع فرقًا.',
+    tipBtn: 'bg-[#1D638D] hover:bg-[#165074]',
+    attentionsTitle: 'أمور تحتاج لمستك',
+    partnerCardBg: 'bg-[#f0f6fa] border-sky-100',
+    partnerIconColor: 'text-[#1D638D]',
+    addKidModalTitle: 'إضافة ابن جديد إلى حسابك',
+    accentColor: '#1D638D',
+    noteForSarah: 'سارة تتقدّم بثبات، لكنها تحتاج دعمًا ومتابعة في الكسور هذا الأسبوع.',
+    attentionSarahNote: 'أداء نورة يستحق نظرة منك',
   },
-  {
-    id: 'att-3',
-    title: 'ملاحظة صغيرة على أداء سارة',
-    actionLabel: 'عرض',
-    actionType: 'openperf',
-    kidId: '1',
-    isUrgent: false,
-  },
-];
+};
 
-export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () => {
+export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = ({
+  initialRole = 'mother',
+  onBackToRoleSelect,
+}) => {
+  const [role, setRole] = useState<ParentRole>(initialRole);
+
+  useEffect(() => {
+    setRole(initialRole);
+  }, [initialRole]);
+
+  const theme = roleThemes[role];
+
   const [kids, setKids] = useState<Kid[]>(initialKids);
-  const [attentions, setAttentions] = useState<AttentionItem[]>(initialAttentions);
+  const [attentions, setAttentions] = useState<AttentionItem[]>([
+    {
+      id: 'att-1',
+      title: 'اشتراك سارة ينتهي بعد 4 أيام',
+      actionLabel: 'تجديد',
+      actionType: 'renew',
+      kidId: '1',
+      isUrgent: true,
+    },
+    {
+      id: 'att-2',
+      title: theme.attentionSarahNote,
+      actionLabel: 'عرض',
+      actionType: 'openperf',
+      kidId: '3',
+      isUrgent: true,
+    },
+    {
+      id: 'att-3',
+      title: 'ملاحظة صغيرة على أداء سارة',
+      actionLabel: 'عرض',
+      actionType: 'openperf',
+      kidId: '1',
+      isUrgent: false,
+    },
+  ]);
   const [activeModal, setActiveModal] = useState<
     | { type: 'renew'; kid: Kid }
     | { type: 'perf'; kid: Kid; title: string }
@@ -168,60 +243,72 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
 
   return (
     <div
-      id="mother-desktop-container"
-      className="min-h-screen bg-[#f7f9fb] text-slate-800 font-['Cairo',sans-serif] flex flex-col selection:bg-rose-100"
+      id="parent-desktop-container"
+      className={`min-h-screen bg-[#f7f9fb] text-slate-800 font-['Cairo',sans-serif] flex flex-col ${theme.selectionClass}`}
     >
       {/* Main Container - Fully responsive padding and sizing */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10 flex-1 w-full space-y-5 sm:space-y-7">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-7 lg:py-9 flex-1 w-full space-y-4 sm:space-y-6">
         
         {/* Responsive Hero Section */}
         <section
           id="hero-banner"
-          className="relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 overflow-hidden"
+          className="relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 overflow-hidden transition-all duration-300"
         >
-          {/* Subtle background decoration */}
-          <div className="absolute left-0 top-0 w-80 h-full bg-gradient-to-r from-pink-50/40 to-transparent pointer-events-none" />
+          {/* Subtle background decoration colored according to active parent role */}
+          <div className={`absolute left-0 top-0 w-96 h-full bg-gradient-to-r ${theme.heroGradient} pointer-events-none transition-all duration-500`} />
 
           {/* Right Avatar & Welcome */}
           <div className="flex items-start sm:items-center gap-3.5 sm:gap-5 relative z-10">
-            {/* "أم" Avatar styled cleanly and responsively */}
+            {/* Avatar styled cleanly according to active parent role */}
             <div
               id="hero-avatar"
-              className="w-14 h-14 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-2xl sm:rounded-3xl bg-[#f7edf3] text-[#B04A7C] font-black text-xl sm:text-2xl lg:text-3xl flex items-center justify-center shadow-xs border border-pink-200/60 shrink-0"
+              className={`w-14 h-14 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-2xl sm:rounded-3xl ${theme.avatarBg} ${theme.avatarTextCol} ${theme.avatarBorder} font-black text-xl sm:text-2xl lg:text-3xl flex items-center justify-center shadow-xs border shrink-0 transition-all duration-300`}
             >
-              أم
+              {theme.avatarText}
             </div>
 
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-1.5">
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#192533] tracking-tight">
-                  أهلًا بأمّ عمر
+                  {theme.welcomeName}
                 </h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold border ${theme.pillBadge}`}>
                   <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                   3 أمور للمتابعة
                 </span>
               </div>
               <p className="text-slate-600 text-xs sm:text-sm lg:text-base font-normal max-w-xl leading-relaxed">
-                أبناؤكِ بخير في الغالب، وهناك 3 أمور صغيرة تحتاج لمستكِ.
+                {theme.welcomeDesc}
               </p>
             </div>
           </div>
 
           {/* Action Buttons: Stack on mobile, inline on tablet/desktop */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 relative z-10 pt-1 sm:pt-0">
+            {onBackToRoleSelect && (
+              <button
+                type="button"
+                id="hero-change-role-btn"
+                onClick={onBackToRoleSelect}
+                title="تغيير صفة ولي الأمر والعودة لصفحة الاختيار"
+                className="px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs active:scale-[0.98]"
+              >
+                <ArrowRight className="w-4 h-4 text-slate-500 shrink-0 rotate-180 rtl:rotate-0" />
+                <span>تبديل الحساب</span>
+              </button>
+            )}
             <button
-              id="hero-invite-father-btn"
+              id="hero-invite-partner-btn"
               onClick={() => setActiveModal({ type: 'invite' })}
               className="px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-2xs active:scale-[0.98]"
             >
               <Share2 className="w-4 h-4 text-slate-500 shrink-0" />
-              <span>دعوة الأب لمشاركة المتابعة</span>
+              <span>{theme.inviteBtnLabel}</span>
             </button>
             <button
               id="hero-add-kid-btn"
               onClick={() => setActiveModal({ type: 'addKid' })}
-              className="px-3.5 sm:px-4 py-2.5 rounded-xl bg-[#26374a] hover:bg-[#1d2b3a] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+              className={`px-3.5 sm:px-4 py-2.5 rounded-xl ${theme.primaryBtn} text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs active:scale-[0.98]`}
             >
               <Plus className="w-4 h-4 shrink-0" />
               <span>إضافة ابن جديد</span>
@@ -244,7 +331,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
                 </span>
               </div>
               <span className="text-[11px] sm:text-xs text-slate-500">
-                انقري على أي بطاقة لعرض التفاصيل الكاملة
+                {role === 'mother' ? 'انقري على أي بطاقة لعرض التفاصيل الكاملة' : 'انقر على أي بطاقة لعرض التفاصيل الكاملة'}
               </span>
             </div>
 
@@ -295,7 +382,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
 
                     {/* Educational / Pedagogical Note */}
                     <p className="text-xs text-slate-600 font-normal leading-relaxed bg-slate-50/70 p-2.5 sm:p-3 rounded-xl border border-slate-100 mb-3.5 min-h-[52px]">
-                      {kid.note}
+                      {kid.id === '1' ? theme.noteForSarah : kid.note}
                     </p>
                   </div>
 
@@ -378,22 +465,22 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
             </div>
           </div>
 
-          {/* Sidebar Column: Maternal Insights & Attentions (12 cols on mobile/tablet, 4 cols on desktop) */}
+          {/* Sidebar Column: Parental Insights & Attentions (12 cols on mobile/tablet, 4 cols on desktop) */}
           <div className="lg:col-span-4 space-y-4 sm:space-y-5">
             
             {/* Tip of the Day (لمسة اليوم) */}
             <div
               id="tip-of-the-day-card"
-              className="bg-gradient-to-br from-amber-50/70 via-white to-orange-50/40 rounded-2xl p-5 border border-amber-200/80 shadow-xs relative overflow-hidden"
+              className={`bg-gradient-to-br ${theme.tipGradient} rounded-2xl p-5 shadow-xs relative overflow-hidden transition-all duration-300`}
             >
-              <div className="flex items-center gap-2 text-amber-900 font-extrabold text-sm mb-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+              <div className="flex items-center gap-2 font-extrabold text-sm mb-2 text-slate-900">
+                <div className={`w-7 h-7 rounded-lg ${theme.tipBadgeBg} flex items-center justify-center`}>
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <span>لمسة اليوم</span>
               </div>
               <p className="text-slate-700 text-xs sm:text-sm leading-relaxed mb-3">
-                عمر أنهى مهامه بإتقان. كلمة تشجيع منكِ الليلة تصنع فرقًا.
+                {theme.tipText}
               </p>
 
               <button
@@ -403,7 +490,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
                 className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   encouragementSent
                     ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-2xs'
+                    : `${theme.tipBtn} text-white shadow-2xs`
                 }`}
               >
                 {encouragementSent ? (
@@ -420,13 +507,13 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
               </button>
             </div>
 
-            {/* Quick Attentions List (تحتاج لمستكِ) */}
+            {/* Quick Attentions List */}
             <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-600" />
                   <h3 className="font-extrabold text-sm text-slate-900">
-                    أمور تحتاج لمستكِ
+                    {theme.attentionsTitle}
                   </h3>
                 </div>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
@@ -441,7 +528,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
                     className="p-3 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/70 flex items-center justify-between gap-3 transition-colors"
                   >
                     <span className="text-xs text-slate-800 font-medium leading-tight">
-                      {att.title}
+                      {att.id === 'att-2' ? theme.attentionSarahNote : att.title}
                     </span>
                     <button
                       type="button"
@@ -455,21 +542,21 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
               </div>
             </div>
 
-            {/* Invite Father Card (دعوة الأب لمشاركة المتابعة) */}
-            <div className="bg-[#f3f7fa] rounded-2xl p-5 border border-slate-200/80 space-y-3 text-right">
+            {/* Partner Invitation Card (دعوة الشريك لمشاركة المتابعة) */}
+            <div className={`${theme.partnerCardBg} rounded-2xl p-5 border space-y-3 text-right transition-all duration-300`}>
               <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-                <UserPlus className="w-4 h-4 text-[#26374a]" />
+                <UserPlus className={`w-4 h-4 ${theme.partnerIconColor}`} />
                 <span>مشاركة التربية والمتابعة</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                يمكنكِ دعوة الأب بضغطة زر لمتابعة الواجبات، ومواعيد الحصص، والمشاركة في القرارات.
+                {theme.inviteCardDesc}
               </p>
               <button
                 type="button"
                 onClick={() => setActiveModal({ type: 'invite' })}
                 className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>دعوة الأب لمشاركة المتابعة</span>
+                <span>{theme.inviteBtnLabel}</span>
                 <ChevronLeft className="w-4 h-4 text-slate-400" />
               </button>
             </div>
@@ -541,7 +628,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
               <button
                 type="button"
                 onClick={() => handleRenewSuccess(activeModal.kid.id)}
-                className="px-5 py-2 rounded-xl text-xs font-bold bg-[#26374a] text-white hover:bg-[#1c2937] shadow-xs cursor-pointer"
+                className={`px-5 py-2 rounded-xl text-xs font-bold ${theme.primaryBtn} text-white shadow-xs cursor-pointer`}
               >
                 تأكيد التجديد الآن
               </button>
@@ -601,7 +688,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#26374a] text-white hover:bg-[#1c2937] shadow-xs cursor-pointer"
+                className={`px-4 py-2 rounded-xl text-xs font-bold ${theme.primaryBtn} text-white shadow-xs cursor-pointer`}
               >
                 حسناً، فهمت
               </button>
@@ -664,9 +751,9 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
               <button
                 type="button"
                 onClick={() => setActiveModal(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#26374a] text-white hover:bg-[#1c2937] shadow-xs cursor-pointer"
+                className={`px-4 py-2 rounded-xl text-xs font-bold ${theme.primaryBtn} text-white shadow-xs cursor-pointer`}
               >
-                إغلاق
+                إغلاق النافذة
               </button>
             </div>
           </div>
@@ -679,8 +766,8 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
           <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
               <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#26374a]" />
-                <span>إضافة ابن جديد إلى حسابكِ</span>
+                <Plus className="w-4 h-4 text-slate-600" />
+                <span>{theme.addKidModalTitle}</span>
               </h3>
               <button
                 type="button"
@@ -746,7 +833,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#26374a] text-white hover:bg-[#1c2937] shadow-xs cursor-pointer"
+                  className={`px-5 py-2 rounded-xl text-xs font-bold ${theme.primaryBtn} text-white shadow-xs cursor-pointer`}
                 >
                   إضافة الآن
                 </button>
@@ -756,14 +843,14 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
         </div>
       )}
 
-      {/* MODAL 5: Invite Father */}
+      {/* MODAL 5: Invite Partner */}
       {activeModal?.type === 'invite' && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
               <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-[#26374a]" />
-                <span>دعوة الأب لمشاركة المتابعة</span>
+                <UserPlus className={`w-4 h-4 ${theme.partnerIconColor}`} />
+                <span>{theme.inviteBtnLabel}</span>
               </h3>
               <button
                 type="button"
@@ -775,12 +862,12 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed mb-4">
-              شاركي رابط الدعوة مع الأب ليتمكن من تسجيل الدخول والمشاركة في متابعة إنجاز الأبناء والمهام اليومية:
+              {theme.inviteModalDesc}
             </p>
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 mb-4">
               <span className="text-[11px] text-slate-600 truncate font-mono">
-                https://parents.platform.edu/invite?code=MOM-9821
+                {`https://parents.platform.edu/invite?code=${theme.inviteCode}`}
               </span>
               <button
                 type="button"
@@ -788,7 +875,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = () 
                   setInviteCopied(true);
                   setTimeout(() => setInviteCopied(false), 2000);
                 }}
-                className="px-3 py-1.5 rounded-lg bg-[#26374a] hover:bg-[#1c2937] text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
+                className={`px-3 py-1.5 rounded-lg ${theme.primaryBtn} text-white text-xs font-bold transition-colors cursor-pointer shrink-0`}
               >
                 {inviteCopied ? 'تم النسخ!' : 'نسخ الرابط'}
               </button>

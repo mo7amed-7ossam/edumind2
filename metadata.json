@@ -1,0 +1,6 @@
+{
+  "name": "منصة ولي الأمر",
+  "description": "منصة ولي الأمر لمتابعة تعلّم الأبناء ومواعيدهم واشتراكاتهم في مكان واحد على أجهزة سطح المكتب",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

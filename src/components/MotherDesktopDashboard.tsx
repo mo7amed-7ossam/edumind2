@@ -770,25 +770,6 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = ({
               <span className="hidden xs:inline">الرئيسية</span>
             </button>
 
-            {/* 2. الجدول (Schedule) */}
-            <button
-              id="nav-tab-schedule"
-              type="button"
-              onClick={() => {
-                setActiveNav('schedule');
-                setOpenDropdown(null);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className={`h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeNav === 'schedule' && !openDropdown
-                  ? `${theme.avatarBg} ${theme.avatarTextCol} border ${theme.avatarBorder} shadow-2xs`
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 border border-transparent'
-              }`}
-              title="الجدول الدراسي الأسبوعي"
-            >
-              <Calendar className="w-4 h-4 stroke-[2.2]" />
-              <span className="hidden xs:inline">الجدول</span>
-            </button>
 
             {/* 2. الأبناء (Kids with Dropdown & Direct Profile Access) */}
             <div className="relative">
@@ -2523,28 +2504,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = ({
             <span className="text-[11px] leading-tight mt-0.5">الرئيسية</span>
           </button>
 
-          {/* 2. الجدول */}
-          <button
-            type="button"
-            id="mobile-nav-schedule"
-            onClick={() => {
-              setActiveNav('schedule');
-              setOpenDropdown(null);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer ${
-              activeNav === 'schedule' && !openDropdown
-                ? `${theme.avatarTextCol} font-extrabold`
-                : 'text-slate-500 hover:text-slate-800 font-semibold'
-            }`}
-          >
-            <div className={`p-1 rounded-xl transition-colors ${activeNav === 'schedule' && !openDropdown ? `${theme.avatarBg} ${theme.avatarTextCol}` : ''}`}>
-              <Calendar className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <span className="text-[11px] leading-tight mt-0.5">الجدول</span>
-          </button>
-
-          {/* 3. الأبناء */}
+          {/* 2. الأبناء */}
           <button
             type="button"
             id="mobile-nav-kids"
@@ -2572,7 +2532,7 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = ({
             <span className="text-[11px] leading-tight mt-0.5">الأبناء</span>
           </button>
 
-          {/* 4. الاشتراكات */}
+          {/* 3. الاشتراكات */}
           <button
             type="button"
             id="mobile-nav-subscriptions"
@@ -2605,7 +2565,33 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = ({
             <span className="text-[11px] leading-tight mt-0.5">الاشتراكات</span>
           </button>
 
-          {/* 5. حسابي مع تنبيه الإشعارات */}
+          {/* 4. الإشعارات */}
+          <button
+            type="button"
+            id="mobile-nav-notifications"
+            onClick={() => {
+              setOpenDropdown(openDropdown === 'notifications' ? null : 'notifications');
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer relative ${
+              openDropdown === 'notifications'
+                ? `${theme.avatarTextCol} font-extrabold`
+                : 'text-slate-500 hover:text-slate-800 font-semibold'
+            }`}
+          >
+            <div className="relative">
+              <div className={`p-1 rounded-xl transition-colors ${openDropdown === 'notifications' ? `${theme.avatarBg} ${theme.avatarTextCol}` : ''}`}>
+                <Bell className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute -top-0.5 -left-1 bg-rose-500 text-white text-[9px] font-black rounded-full px-1 min-w-[15px] h-[15px] flex items-center justify-center leading-none ring-2 ring-white shadow-2xs">
+                  {unreadNotificationsCount}
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] leading-tight mt-0.5">الإشعارات</span>
+          </button>
+
+          {/* 5. حسابي */}
           <button
             type="button"
             id="mobile-nav-profile"
@@ -2618,15 +2604,8 @@ export const MotherDesktopDashboard: React.FC<MotherDesktopDashboardProps> = ({
                 : 'text-slate-500 hover:text-slate-800 font-semibold'
             }`}
           >
-            <div className="relative">
-              <div className={`w-7 h-7 rounded-xl ${openDropdown === 'profile' ? `${theme.avatarBg} ${theme.avatarTextCol} ring-2 ring-current` : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-xs font-bold transition-all shadow-2xs`}>
-                {role === 'mother' ? '👩' : '👨'}
-              </div>
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-1 -left-1 bg-rose-500 text-white text-[9px] font-black rounded-full px-1 min-w-[15px] h-[15px] flex items-center justify-center leading-none ring-2 ring-white shadow-2xs">
-                  {unreadNotificationsCount}
-                </span>
-              )}
+            <div className={`w-7 h-7 rounded-xl ${openDropdown === 'profile' ? `${theme.avatarBg} ${theme.avatarTextCol} ring-2 ring-current` : 'bg-slate-100 text-slate-700'} flex items-center justify-center text-xs font-bold transition-all shadow-2xs`}>
+              {role === 'mother' ? '👩' : '👨'}
             </div>
             <span className="text-[11px] leading-tight mt-0.5">حسابي</span>
           </button>

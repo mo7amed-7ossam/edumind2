@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 14.5px;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Compact form controls */
+  input, select, textarea, button {
+    font-family: inherit;
+  }
+}

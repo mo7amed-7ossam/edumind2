@@ -51,17 +51,17 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ onLogi
         {/* Subtitle (Responsive Typography) */}
         <p
           id="portal-description"
-          className="text-xs sm:text-sm text-[#66788a] font-normal leading-relaxed mb-5 sm:mb-6 max-w-xs sm:max-w-sm"
+          className="text-xs sm:text-sm text-[#66788a] font-normal leading-relaxed mb-5 sm:mb-6 max-w-sm sm:max-w-md"
         >
-          تعلّم أبنائك ومواعيدهم واشتراكاتهم، في مكان واحد.
+          دراسة أبنائك من الروضة إلى الصف السادس، ومواعيدهم واشتراكاتهم، في مكان واحد.
         </p>
 
-        {/* "أنا" label */}
+        {/* "كيف نخاطبك؟" label */}
         <div
           id="role-label-ana"
           className="text-xs sm:text-sm font-bold text-slate-500 mb-2.5 sm:mb-3.5"
         >
-          أنا
+          كيف نخاطبك؟
         </div>
 
         {/* Cards Grid (In RTL: Mother is on the Right, Father is on the Left) */}
@@ -99,13 +99,8 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ onLogi
             </div>
 
             {/* Label */}
-            <span className="text-base sm:text-xl font-bold text-[#172533] mb-0.5 leading-none">
+            <span className="text-base sm:text-xl font-bold text-[#172533] leading-none">
               أُمّ
-            </span>
-
-            {/* Greeting */}
-            <span className="text-[11px] sm:text-xs text-[#7e8f9f] font-normal leading-tight">
-              أهلاً بكِ
             </span>
           </button>
 
@@ -139,13 +134,8 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ onLogi
             </div>
 
             {/* Label */}
-            <span className="text-base sm:text-xl font-bold text-[#172533] mb-0.5 leading-none">
+            <span className="text-base sm:text-xl font-bold text-[#172533] leading-none">
               أَبْ
-            </span>
-
-            {/* Greeting */}
-            <span className="text-[11px] sm:text-xs text-[#7e8f9f] font-normal leading-tight">
-              أهلاً بك
             </span>
           </button>
         </div>

@@ -23,6 +23,22 @@ export interface Kid {
   };
 }
 
+export interface AttentionCardItem {
+  id: string;
+  kidId: string;
+  kidName: string;
+  text: string;
+  severity: 'danger' | 'warning';
+  primaryBtn: {
+    label: string;
+    action: string;
+  };
+  secondaryBtn: {
+    label: string;
+    action: string;
+  };
+}
+
 export interface AttentionItem {
   id: string;
   title: string;
